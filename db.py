@@ -4,7 +4,7 @@ import psycopg2
 
 def db_connection(): 
     return psycopg2.connect(
-        host = 'dpg-d03p2j9r0fns73cm0420-a.render.com', 
+        host = 'dpg-d03p2j9r0fns73cm0420-a.oregon-postgres.render.com', 
         port = '5432', 
         database = 'fyp_db_t3ox', 
         user = 'fyp_db_t3ox_user', 
