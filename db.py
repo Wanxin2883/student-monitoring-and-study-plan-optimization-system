@@ -4,11 +4,11 @@ import psycopg2
 
 def db_connection(): 
     return psycopg2.connect(
-        host = 'pg-3998d03d-helplive-bf40.e.aivencloud.com', 
-        port = '20643', 
-        database = 'defaultdb', 
-        user = 'avnadmin', 
-        password = 'AVNS_Nq9tap9LFaBnhE-8vxe'
+        host = 'dpg-d03p2j9r0fns73cm0420-a.render.com', 
+        port = '5432', 
+        database = 'fyp_db_t3ox', 
+        user = 'fyp_db_t3ox_user', 
+        password = 'rsdiL6mUPE3HoWOKWPJ2IsjSECkPij4U'
     )
 
 def execute_query(query, fetch, params=()):
