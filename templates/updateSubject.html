@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Update Student Progress</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fff0f3;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .back-button {
+            cursor: pointer;
+            font-size: 20px;
+            position: absolute;
+            left: 50px;
+        }
+        .container {
+            width: 80%;
+            margin: 40px auto;
+            text-align: center;
+        }
+        .top-bar {
+            display: flex;
+            justify-content: center;
+            background: #ffb3c1;
+            padding: 15px;
+            border-radius: 50px;
+            margin-bottom: 20px;
+        }
+        .tab {
+            background: #ffffff;
+            padding: 12px 25px;
+            margin: 5px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .tab i {
+            margin-right: 10px; 
+        }
+        .tab:hover {
+            background: #FFF7F3;
+        }
+        .tab.active {
+            background: #2c3e50;
+            color: white;
+        }
+        .form-grid {
+            display: flex;
+            gap: 20px;
+        }
+        .form-column {
+            width: 50%;
+        }
+        .form-section {
+            display: none;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+        }
+        .active-section {
+            display: block;
+        }
+        label {
+            display: block;
+            margin: 12px 0 5px;
+            font-weight: bold;
+            text-align: left;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        input{
+            width: 96%; 
+        }
+        
+        input[type="range"] {
+            margin-top: 8px;
+            -webkit-appearance: none;
+            width: 100%;
+            height: 2px; 
+            background: #ffb3c1;
+            border-radius: 50px; 
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 40px; /* Make the thumb larger */
+            height: 40px;
+            border-radius: 60%;
+            background: #DA4167;
+            cursor: pointer;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #addCreditValue, #updateCreditValue {
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-left: 0px;
+            margin-bottom: 8px; 
+        }
+
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .delete-btn {
+            background-color: #dc3545;
+        }
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        input[readonly] {
+            background-color: #e9ecef;
+            cursor: not-allowed;
+        }
+
+        #deleteSubjectName{
+            width: 98%;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+        }
+
+        .modal-content {
+            background-color: #FFF;
+            margin: 22% auto;
+            padding: 25px;
+            border-radius: 6px;
+            width: 380px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <i class="fas fa-arrow-left back-button" onclick="history.back()"></i>
+        <h1>Update Subject Details</h1>
+    </div>
+    <div class="container">
+        <!-- Top Navigation Bar -->
+        <div class="top-bar">
+            <div class="tab active" onclick="showForm('addSubject', this)">
+                <i class="fa-solid fa-plus"></i> Add Subject
+            </div>
+            <div class="tab" onclick="showForm('updateSubject', this)">
+                <i class="fa-solid fa-pen-to-square"></i> Update Subject
+            </div>
+            <div class="tab" onclick="showForm('deleteSubject', this)">
+                <i class="fa-solid fa-trash"></i> Delete Subject
+            </div>
+        </div>
+        
+        <!-- Add New Subject -->
+        <div id="addSubject" class="form-section active-section">
+            <form id="addForm">
+                <div class="form-grid">
+                    <div class="form-column">
+                        <label>Subject Code</label>
+                        <input type="text" name="subject_code" required>
+                        <label>Subject Name</label>
+                        <input type="text" name="subject_name" required>
+                        <label>Subject Class</label>
+                        <select name="subject_class" required>
+                            <option value="">--SELECT--</option>
+                            {% for class in uq_class %}
+                                <option value="{{ class[0] }}">{{ class[0] }}</option>
+                            {% endfor %}
+                        </select>
+                        <label>Subject Category</label>
+                        <select name="subject_category" required>
+                            <option value="">--SELECT--</option>
+                            {% for cat in uq_cat %}
+                                <option value="{{ cat[0] }}">{{ cat[0] }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-column">
+                        <label>Credit Hour</label>
+                        <div class = 'slider-container'>
+                            <input name = "credit_hours" type="range" min="1" max="8" value="4" oninput="updateCreditValue(this.value, 'addCreditValue')">
+                            <span id="addCreditValue">4</span>
+                        </div>                        
+                        <label>Subject Year</label>
+                        <select name = "subject_year" required>
+                            <option value="">--SELECT--</option>
+                            {% for year in uq_year %}
+                                <option value="{{ year[0] }}">Year {{ year[0] }}</option>
+                            {% endfor %}
+                        </select>
+                        <label>Pre-requisite</label>
+                        <select name = "pre_requisite" required>
+                            <option value="">--SELECT--</option>
+                            {% for sbj in uq_sbj %}
+                                <option value="{{ sbj[0] }}">{{ sbj[0] }}</option>
+                            {% endfor %}
+                        </select>
+                        <label>Offered in</label>
+                        <select name = "sem_id" required>
+                            <option value="">--SELECT--</option>
+                            {% for sem in uq_sem %}
+                                <option value="{{ sem[0] }}">{{ sem[0] }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" name = "action" value="add">Add Subject</button>
+            </form>
+        </div>
+        
+        <!-- Update Subject Details -->
+        <div id="updateSubject" class="form-section">
+            <form id="updateForm">
+                <div class="form-grid">
+                    <div class="form-column">
+                        <label for="updateSubjectCode">Subject Code (Old)</label>
+                        <select id="updateSubjectCode" name = "old_subject_code" onchange="displayUpdateSubjectName()">
+                            <option value="">--SELECT--</option>
+                            {% for sbj in uq_sbj %}
+                                <option value="{{ sbj[0] }}" data-name="{{ sbj[1] }}">{{ sbj[0] }}</option>
+                            {% endfor %}
+                        </select>
+                        <!-- Subject Name (Old) -->
+                        <label for="updateSubjectName">Subject Name (Old)</label>
+                        <input type="text" id="updateSubjectName" readonly>
+                        <label>Subject Code (New)</label>
+                        <input type="text" name = "subject_code">
+                        <label>Subject Name (New)</label>
+                        <input type="text" name="subject_name">
+                        <label>Subject Class</label>
+                        <select name = 'subject_class'>
+                            <option value="">--SELECT--</option>
+                            {% for class in uq_class %}
+                                <option value="{{ class[0] }}">{{ class[0] }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-column">
+                        <label>Subject Category</label>
+                        <select name = "subject_category">
+                            <option value="">--SELECT--</option>
+                            {% for cat in uq_cat %}
+                                <option value="{{ cat[0] }}">{{ cat[0] }}</option>
+                            {% endfor %}
+                        </select>
+                        <label>Credit Hour</label>
+                        <div class = 'slider-container'>
+                            <input name = 'credit_hours' type="range" min="0" max="8" value="4" oninput="updateCreditValue(this.value, 'updateCreditValue')">
+                            <span id="updateCreditValue">4</span>
+                        </div>                        
+                        <label>Subject Year</label>
+                        <select name = 'subject_year'>
+                            <option value="">--SELECT--</option>
+                            {% for year in uq_year %}
+                                <option value="{{ year[0] }}">Year {{ year[0] }}</option>
+                            {% endfor %}
+                        </select>
+                        <label>Pre-requisite</label>
+                        <select name = "pre_requisite">
+                            <option value="">--SELECT--</option>
+                            {% for sbj in uq_sbj %}
+                                <option value="{{ sbj[0] }}">{{ sbj[0] }}</option>
+                            {% endfor %}
+                        </select>
+                        <label>Offered in</label>
+                        <select name = 'semester_offered'>
+                            <option value="">--SELECT--</option>
+                            {% for sem in uq_sem %}
+                                <option value="{{ sem[0] }}">{{ sem[0] }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" name = "action" value="update">Update Subject</button>
+            </form>
+        </div>
+        
+        <!-- Delete Subject -->
+        <div id="deleteSubject" class="form-section">
+            <form id="deleteForm">
+                <label for="deleteSubjectCode">Subject Code</label>
+                <select id="deleteSubjectCode" name="subject_code" onchange="updateDeleteSubjectName()">
+                    <option value="">--SELECT--</option>
+                    {% for sbj in uq_sbj %}
+                        <option value="{{ sbj[0] }}" data-name="{{ sbj[1] }}">{{ sbj[0] }}</option>
+                    {% endfor %}
+                </select>
+
+                <label for="deleteSubjectName">Subject Name</label>
+                <input type="text" id="deleteSubjectName" readonly>
+
+                <!-- Hidden input to send the action -->
+                <input type="hidden" name="action" value="deleted">
+
+                <button type="button" class="delete-btn" onclick="showDeleteConfirmation()">Delete Subject</button>
+            </form>
+        </div>
+
+        <!-- Delete Confirmation Modal -->
+        <div id="confirmationModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <strong><p id="deleteConfirmationText"></p></strong>
+                <button onclick="confirmDelete()">Confirm</button>
+                <button onclick="cancelDelete()">Cancel</button>
+            </div>
+        </div>
+
+
+    <p id="statusMessage" style="text-align:center; font-weight:bold;"></p>
+    
+    <script>
+        function updateCreditValue(value, id) {
+            document.getElementById(id).textContent = value;
+        }
+
+        function showForm(formId, element) {
+            document.querySelectorAll('.form-section').forEach(form => form.classList.remove('active-section'));
+            document.getElementById(formId).classList.add('active-section');
+
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        function displayUpdateSubjectName() {
+            let select = document.getElementById("updateSubjectCode");
+            let subjectNameInput = document.getElementById("updateSubjectName");
+
+            let selectedOption = select.options[select.selectedIndex];
+            subjectNameInput.value = selectedOption.value ? selectedOption.getAttribute("data-name") : "";
+        }
+
+        function updateDeleteSubjectName() {
+            let select = document.getElementById("deleteSubjectCode");
+            let subjectNameInput = document.getElementById("deleteSubjectName");
+
+            let selectedOption = select.options[select.selectedIndex];
+            subjectNameInput.value = selectedOption.value ? selectedOption.getAttribute("data-name") : "";
+        }
+
+        function submitForm(event, formId, action) {
+            event.preventDefault();
+            let form = document.getElementById(formId);
+            let formData = new FormData(form);
+            formData.append("action", action);  // Ensure action value is sent
+
+            document.getElementById("statusMessage").innerText = "Processing request...";
+            event.preventDefault();  // Prevent double submission
+            fetch("/manageSubject", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Server Response:", data);  // Debugging
+                document.getElementById("statusMessage").innerText = data.message || `Error: ${data.error}`;
+            })
+            .catch(error => {
+                console.error("Fetch Error:", error);
+                document.getElementById("statusMessage").innerText = "Failed.";
+            });
+        }
+
+        // Attach event listeners
+        document.getElementById("addForm").addEventListener("submit", function(event) {
+            submitForm(event, "addForm", "added");
+        });
+        document.getElementById("updateForm").addEventListener("submit", function(event) {
+            submitForm(event, "updateForm", "updated");
+        });
+
+        function confirmDelete() {
+            let deleteForm = document.getElementById("deleteForm");
+            document.getElementById("confirmationModal").style.display = "none";
+            submitForm(new Event("submit"), "deleteForm", "deleted");
+        }
+
+        function cancelDelete() {
+            document.getElementById("confirmationModal").style.display = "none";
+        }
+
+        function showDeleteConfirmation() {
+            let select = document.getElementById("deleteSubjectCode");
+            let selectedOption = select.options[select.selectedIndex];
+
+            if (selectedOption.value) {
+                document.getElementById("deleteConfirmationText").textContent = 
+                    `Are you sure you want to delete ${selectedOption.value}?`;
+                document.getElementById("confirmationModal").style.display = "block";
+            } 
+        }
+
+    </script>
+</body>
+</html>

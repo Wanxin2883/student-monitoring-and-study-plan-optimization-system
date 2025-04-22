@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Study Plan</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #fff0f3;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .back-button {
+            cursor: pointer;
+            font-size: 20px;
+            position: absolute;
+            left: 50px;
+        }
+        .reshuffle-btn {
+            background-color: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: 0.3s ease;
+            position: absolute;
+            right: 50px;
+        }
+        .reshuffle-btn:hover {
+            background-color: #c82333;
+        }
+        .container {
+            max-width: 90%;
+            margin: auto;
+            padding: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #ffb3c1;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        .red-highlight {
+            background-color: #f1f1f1;
+            color: #bebebe;
+        }
+        .year-number {
+            font-size: 20px;  
+            text-align: center;
+        }
+        .download-btn {
+            color: white;
+            font-size: 24px;
+            position: absolute;
+            right: 70px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <i class="fas fa-arrow-left back-button" onclick="history.back()"></i>
+        <h1>New Study Plan</h1>
+        <a href="{{ url_for('downloadNewPlan', stu_id=stu_id)}}" class="download-btn">
+            <i class="fa-solid fa-download"></i>
+        </a>
+    </div>
+    <div class="container">   
+        <table>
+            <thead>
+                <tr>
+                    <th>Year</th>
+                    <th>Semester</th>
+                    <th>Subject Code</th>
+                    <th>Subject Name</th>
+                    <th>Subject Class</th>
+                    <th>Credit Hours</th>
+                    <th>Student Grade</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set ns = namespace(prev_year=None, prev_semester=None) %}
+                
+                {% for subject in study_plan %}
+                    {% set year_display = (subject[8][:4] if subject[8] and subject[8][:4].isdigit() else "Completed") %}
+                    {% set semester_display = subject[1] %}
+            
+                    <tr>
+                        {# Display Year only if it changes from the previous row #}
+                        {% if ns.prev_year != year_display %}
+                            <td><strong>{{ year_display }}</strong></td>
+                            {% set ns.prev_year = year_display %}
+                        {% else %}
+                            <td style="border-top: 10px solid white;"></td>  {# Adds space without merging #}
+                        {% endif %}
+            
+                        {# Display Semester only if it changes from the previous row #}
+                        {% if ns.prev_semester != semester_display %}
+                            <td><strong>{{ semester_display }}</strong></td>
+                            {% set ns.prev_semester = semester_display %}
+                        {% else %}
+                            <td style="border-top: 10px solid white;"></td>  {# Adds space without merging #}
+                        {% endif %}
+            
+                        <td>{{ subject[2] }}</td>
+                        <td>{{ subject[3] }}</td>
+                        <td>{{ subject[4] }}</td>
+                        <td>{{ subject[5] }}</td>
+                        <td>
+                            {% if subject[7] == "Not Attempted" %}
+                                {{ subject[9] }}
+                            {% else %}
+                                {{ subject[7] }}
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>                   
+        </table>             
+    </div>
+</body>
+</html>

@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang = 'en'>
+    <head>
+        <meta charset = 'UTF-8'>
+        <meta name = 'viewport' content = 'width = device-width, initial-scale = 1.0'>
+        <title>Dashboard</title>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <style>
+            
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #fff0f3;
+                margin: 0;
+                padding: 0;
+            }
+
+            .dash-title {
+                display: flex;
+                align-items: center;
+                justify-content: center; /* Keep title centered */
+                padding: 10px 15px;
+                background: #2C3E50;
+                color: white;
+                position: relative;
+            }
+            
+            .menu-icon {
+                font-size: 30px;
+                cursor: pointer;
+                position: absolute;
+                left: 40px;
+            }
+
+            /* Sidebar Styling */
+            .sidebar {
+                position: fixed;
+                left: -260px;
+                top: 0;
+                width: 260px;
+                height: 100%;
+                background: #34495E;
+                transition: left 0.4s ease-in-out;
+                padding-top: 60px;
+                box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+                overflow-y: auto;
+                z-index: 1001; /* Ensure sidebar is above the overlay */
+            }
+
+            .show-sidebar {
+                left: 0;
+            }
+
+            /* Close Button */
+            .close-btn {
+                font-size: 24px;
+                color: white;
+                text-align: right;
+                padding: 15px 25px;
+                display: block;
+                cursor: pointer;
+            }
+
+            /* Sidebar Links */
+            .sidebar a {
+                display: block;
+                padding: 15px 25px;
+                color: white;
+                text-decoration: none;
+                transition: background 0.3s;
+            }
+
+            .sidebar a:hover {
+                background: #CECCCC;
+                color: black;
+            }
+
+            /* Overlay Styling */
+            .overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+                display: none; /* Hidden by default */
+                z-index: 1000; /* Ensure it's below the sidebar */
+            }
+
+
+            .modal {
+                display: none;
+                position: fixed;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                z-index: 1001;
+            }
+
+            .modal-content {
+                background-color: #FFF;
+                margin: 22% auto;
+                padding: 25px;
+                border-radius: 6px;
+                width: 380px;
+                text-align: center;
+            }
+
+            .form-container form {
+                display: flex;
+                flex-wrap: nowrap;
+                justify-content: space-between;
+                align-items: center;
+                gap: 15px;
+                width: 94%;
+                margin: 40px;
+            }
+
+            .form-group {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                flex: 0.8; /* Reduce this if needed */
+            }
+
+            .filter-button {
+                padding: 15px;
+                margin-top: 20px !important;
+            }
+
+
+            label {
+                font-weight: bold;
+                margin-bottom: 5px;
+            }
+
+            select, button {
+                width: 100%;
+                padding: 15px;
+                border-radius: 5px;
+                border: 2px solid black;
+                font-size: 16px;
+                text-align: center;
+                background-color: #fff0f3;
+            }
+
+            button {
+                background-color: #BB0003;
+                color: #FFF;
+                cursor: pointer;
+                margin: 5px;
+                padding: 10px;
+                border: none;
+            }
+
+            button:hover {
+                background-color: #D80004;
+                transform: translateY(-2px);
+            }
+
+            button:active {
+                transform: translateY(1px);
+            }
+
+            .card-container {
+                display: flex;
+                justify-content: space-around;
+                margin: 20px;
+            }
+
+            .card {
+                border-radius: 6px;
+                text-align: center;
+                padding: 15px;
+                width: 20%;
+            }
+
+            .ttl-stu{
+                background-color: #ffb3c1;
+            }
+
+            .chart-container {
+                display: flex;
+                justify-content: center;
+                align-items: flex-start;
+                gap: 30px;
+                margin: 20px auto;
+                padding: 20px;
+                width: 95%;
+            }
+
+            .chart-box {
+                flex: 0.8;
+                text-align: center;
+                background: #FFF;
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            }
+
+            .pending-table {
+                flex: 0.8;
+                background: #FFF;
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                overflow-x: auto;
+                max-height: 400px;
+            }
+
+            .legend {
+                display: flex;
+                gap: 15px;
+                margin: 15px;
+            }
+
+            .legend-item {
+                display: inline-block;
+                width: 15px;
+                height: 15px;
+                border-radius: 50%;
+                margin-right: 3px;
+            }
+
+            .pending-table table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            .pending-table th, .pending-table td {
+                padding: 10px;
+                text-align: center;
+                border-bottom: 1px solid #DDD;
+            }
+
+            .pending-table th {
+                background-color: #2C3E50;
+                color: #FFF;
+            }
+
+            .pending-table tr:hover td {
+                background-color: #F1F1F1;
+            }
+
+            td a {
+                font-weight: bold;           /* Make text bold */
+                color: #2C3E50;             /* Blue-black color */
+                text-decoration: none;      /* Remove default underline */
+                transition: text-decoration 0.2s ease-in-out; /* Smooth effect */
+            }
+
+            /* Underline on hover */
+            td a:hover {
+                text-decoration: underline;
+            }
+    
+            /* Color rows based on grade */
+            .grade-fail {
+                background-color: #DB5461 !important; /* Light red */
+            }
+
+            .grade-aa {
+                background-color: #A09BE7 !important; /* Light pink */
+            }
+
+            .grade-ae {
+                background-color: #EABE7C !important; /* Light orange */
+            }
+
+            @media (max-width: 992px) {
+                .chart-container {
+                    flex-direction: column;
+                    align-items: center;
+                }
+
+                .pending-table {
+                    width: 90%;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="dash-title">
+            <span class="menu-icon" onclick="toggleMenu()">☰</span>
+            <h1>{{ pgrm_code }} Student Progress Overview</h1>
+        </div>
+    
+        <!-- Sidebar Menu -->
+        <div id="sidebar" class="sidebar">
+            <span class="close-btn" onclick="toggleMenu()">✖</span>
+            <a href="{{ url_for('updateProgress') }}">Update Student Progress</a>
+            <a href="{{ url_for('updateSubject', username = username) }}">Update Subject Details</a>
+            <a href="{{ url_for('downloadProgress', username = username) }}">Download Student Progress</a>
+            <a href="#" onclick="showConfirmation()">Logout</a>
+        </div>
+
+        <!-- Overlay (Prevents clicking other buttons when sidebar is open) -->
+        <div id="overlay" class="overlay" onclick="toggleMenu()"></div>
+    
+        <!-- Confirmation Modal -->
+        <div id="confirmationModal" class="modal">
+            <div class="modal-content">
+                <h4>Are you sure you want to logout?</h4>
+                <button onclick="confirmLogout()">Confirm</button>
+                <button onclick="cancelLogout()">Cancel</button>
+            </div>
+        </div>
+
+        <div class="form-container">
+            <form method='POST' action=''>
+                <div class="form-group">
+                    <label for="yFilter">Subject Year</label>
+                    <select name='yFilter' id='yFilter'>
+                        <option value=None>ALL</option>
+                        {% for y in sbj_year %}
+                            <option value='{{ y }}' {% if y == selected_year %}selected{% endif %}>Year {{ y }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="semFilter">Semester</label>
+                    <select name='semFilter' id='semFilter'>
+                        <option value=''>ALL</option>
+                        {% for sem in sem_name %}
+                            <option value='{{ sem }}' {% if sem == selected_sem %}selected{% endif %}>{{ sem }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="cFilter">Subject Class</label>
+                    <select name='cFilter' id='cFilter'>
+                        <option value=''>ALL</option>
+                        {% for c in sbj_class %}
+                            <option value='{{ c }}' {% if c == selected_class %}selected{% endif %}>{{ c }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="statusFilter">Subject Status</label>
+                    <select name='statusFilter' id='statusFilter'>
+                        <option value=''>ALL</option>
+                        {% for status in sbj_status %}
+                            <option value='{{ status }}' {% if s == selected_status %}selected{% endif %}>{{ status }}</option>
+                        {% endfor %}
+                    </select>
+                </div>                
+                <div class="form-group">
+                    <label> </label>
+                    <button class = 'filter-button' id='filter_button' type='submit'>Filter</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="card-container">
+            <div class='card ttl-stu'><h3>Total Students</h3><p>{{ ttl_students[0] if ttl_students else 0 }}</p></div>
+            <div class='card grade-fail'><h3>Failed Subject</h3><p>{{ sbj_failed | length if sbj_failed else 0 }}</p></div>
+            <div class='card grade-aa'><h3>Additional Assessment</h3><p>{{ add_assess | length if add_assess else 0 }}</p></div>
+            <div class='card grade-ae'><h3>Additional Exam</h3><p>{{ add_exam | length if add_exam else 0 }}</p></div>
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-box">
+                <h2>Enrollment Count in the Upcoming Semester</h2>
+                <canvas id="stackedBarChart"></canvas>
+            </div>
+            <div class="pending-table">
+                <h2>Student At Risk</h2>
+                <div class="legend">
+                    <span class="legend-item grade-fail"></span> Failed (FL)
+                    <span class="legend-item grade-aa"></span> Additional Assessment (AA)
+                    <span class="legend-item grade-ae"></span> Additional Exam (AE)
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student ID</th>
+                            <th>Subject Code</th>
+                            <th>Grade</th>
+                            <th>Upcoming Semester</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if pending_grade %}
+                            {% for row in pending_grade %}
+                                <tr class = "
+                                    {% if row[2] == 'FL' %} grade-fail 
+                                    {% elif row[2] == 'AA' %} grade-aa 
+                                    {% elif row[2] == 'AE' %} grade-ae 
+                                    {% endif %}">
+                                    <td><a href="{{ url_for('stuDetails', username = username, stu_id = row[0]) }}">{{ row[0] }}</a></td>
+                                    <td>{{ row[1] }}</td>
+                                    <td>{{ row[2] if row[2] else '-' }}</td>
+                                    <td>{{ row[3] if row[3] else '-' }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr><td colspan="4">No pending grades available.</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </body>
+    <script>
+        function toggleMenu() {
+            var sidebar = document.getElementById("sidebar");
+            var overlay = document.getElementById("overlay");
+
+            if (sidebar.classList.contains("show-sidebar")) {
+                // Hide sidebar and overlay
+                sidebar.classList.remove("show-sidebar");
+                overlay.style.display = "none";
+            } else {
+                // Show sidebar and overlay
+                sidebar.classList.add("show-sidebar");
+                overlay.style.display = "block";
+            }
+        }
+
+        // Data passed from Flask
+        const chartData = {{ chart_data|tojson|default("[]") }};
+
+        // Extract unique `intake` values
+        const intakes = [...new Set(Object.values(chartData).flatMap(obj => Object.keys(obj)))];
+
+        // Extract subject codes and datasets for Chart.js
+        const sbjCodes = Object.keys(chartData);
+        const datasets = intakes.map(intake => ({
+        label: intake,
+        data: sbjCodes.map(sbj => chartData[sbj][intake] || 0), // Fill missing values with 0
+        backgroundColor: getRandomColor(),
+        }));
+
+        // Generate the chart
+        const ctx = document.getElementById('stackedBarChart').getContext('2d');
+        new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: sbjCodes, // x-axis: Subject codes
+            datasets: datasets, // Stacks: Each `intake`
+        },
+        options: {
+            responsive: true,
+            plugins: {
+            legend: {
+                position: 'top',
+            },
+            },
+            scales: {
+            x: {
+                stacked: true,
+            },
+            y: {
+                stacked: true,
+                title: {
+                display: true,
+                text: 'Total Students',
+                },
+                ticks: {
+                precision: 0, // Ensure whole numbers only
+                stepSize: 1,  // Increment by 1
+                },
+            },
+            },
+        },
+        });
+
+        // Helper function for random colors
+        function getRandomColor() {
+        const letters = '0123456789ABCDEF';
+        let color = '#';
+        for (let i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+        }
+
+        function showConfirmation() {
+            // Show the confirmation modal
+            document.getElementById("confirmationModal").style.display = "block";
+        }
+    
+        function cancelLogout() {
+            // Hide the confirmation modal if the user cancels
+            document.getElementById("confirmationModal").style.display = "none";
+        }
+    
+        function confirmLogout() {
+            window.location.href = "{{ url_for('login_page') }}"; 
+        }
+    </script>
+</html>

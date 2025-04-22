@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>HELP Dashboard</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 30px;
+            padding-top: 100px;
+            background-color: #fff0f3;
+        }
+
+        .navbar {
+            background-color: #2C3E50; /* Dark blue background */
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between; /* Pushes left and right sections apart */
+            padding: 30px 40px; /* Adjust padding to prevent sticking to edges */
+            font-size: 1.2em;
+            position: fixed;
+            top: 0;
+            left: 60px;
+            width: 95%;
+            z-index: 1000;
+        }
+
+        /* Left Section: Hello User */
+        .nav-left {
+            margin-left: 15px;
+            display: flex;
+            align-items: center;
+            gap: 20px; /* Space between user icon and text */
+        }
+
+        .hello-text {
+            display: flex;
+            align-items: baseline; /* Keeps text aligned properly */
+            gap: 10px;  /* Adjust the space between stu_id and pgrm_code */
+        }
+
+        .hello-text strong{
+            font-size: 1.5em;
+        }
+
+        /* Right Section: Icons */
+        .nav-right {
+            display: flex;
+            align-items: center;
+            margin-right: 80px;
+            gap: 40px; /* Space between notification, study plan, and logout */
+        }
+
+        /* Icons Styling */
+        .fa-solid {
+            cursor: pointer;
+            font-size: 1.4em;
+            color: white;
+            vertical-align: middle;
+        }
+
+        .notification-icon {
+            font-size: 1.1em;
+            background: none;
+            padding: 0px;
+            margin: 0px;
+        }
+        .notification-icon:hover{
+            background: none;
+        }
+        
+        .notification-dot {
+            position: absolute;
+            top: 32px;
+            right: 120px;
+            width: 10px;
+            height: 10px;
+            background-color: red;
+            border-radius: 50%;
+            display: block; 
+            z-index: 1000000;
+        }
+
+        .dropdown {
+            display: none;
+            position: absolute;
+            right: 10px;
+            top: 100px;
+            width: 300px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            z-index: 1000;
+        }
+        
+        .dropdown-header {
+            font-weight: bold;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .read-all {
+            font-size: 16px;
+            color: green;
+            cursor: pointer;
+        }
+        .dropdown-body {
+            padding: 20px;
+        }
+        .notification-item {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .dropdown-footer {
+            text-align: center;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+            color: red;
+            cursor: pointer;
+        }
+        .dropdown-footer:hover {
+            background: #f5f5f5;
+        }
+
+        .toggle-btn {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 93.8px;
+            height: 93.8px;
+            font-size: 1.2em;
+            cursor: pointer;
+            color: white;
+            z-index: 1001;
+            background: #2C3E50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0;
+        }
+        .sidebar {
+            width: 260px;
+            background: #2C3E50;
+            color: white;
+            height: 100vh;
+            position: fixed;
+            left: -260px;
+            top: 93.8px;
+            transition: 0.3s;
+            padding-top: 0;
+            z-index: 1001;
+        }
+        .sidebar.active {
+            left: 0;
+        }
+        /* Sidebar Links */
+        .sidebar a {
+            display: block;
+            padding: 15px 35px;
+            color: white;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+
+        .sidebar a:hover {
+            background: #CECCCC;
+            color: black;
+        }
+
+        /* Overlay Styling */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+            display: none; /* Hidden by default */
+            z-index: 1000; /* Ensure it's below the sidebar */
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1009;
+        }
+
+        .modal-content {
+            background-color: #FFF;
+            margin: 22% auto;
+            padding: 25px;
+            border-radius: 6px;
+            width: 380px;
+            text-align: center;
+        }
+
+        /* Cards Container */
+        .cards-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        /* Pink Cards (First Row) */
+        .pink-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* Ensures exactly 3 cards */
+            gap: 20px;
+        }
+
+        /* Other Cards (Second Row) */
+        .other-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* Ensures exactly 3 cards */
+            gap: 20px;
+        }
+
+        .card {
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .pink { border: 3px solid #744253; }
+        .green { background-color: #DB5461; }
+        .purple { background-color: #A09BE7; }
+        .blue { background-color: #EABE7C; }
+
+        /* Credit Progress */
+        .credit-progress {
+            text-align: center; 
+            width: 100%;
+            margin: auto; /* Center it */
+        }
+
+        .credit-progress .labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1em;
+            color: #666;
+        }
+
+        .credit-progress .credit-bar {
+            width: 100%;
+            background-color: #DDD;
+            border-radius: 5px;
+            overflow: hidden;
+            position: relative;
+            margin-top: 5px;
+            z-index: 1;
+        }
+
+        .credit-bar .completed { 
+            display: block; 
+            height: 38px;
+            background-color: #D64045;
+            width: calc(100% * {{ ttl_hours[0] }} / {% if stu.pgrm_code == 'HUBDA' %}120{% else %}90{% endif %});
+        }
+
+        .credit-bar span {
+            position: absolute;
+            top: 6px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.2em;
+            color: #333;
+        }
+
+        .subject-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .subject-box {
+            background: #ffffff; /* White background */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Soft shadow effect */
+            overflow: auto;
+            max-height: 300px;
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .subject-box strong {
+            display: block;
+            margin-bottom: 15px;
+            font-size: 1em;
+            color: #333; /* Darker text for contrast */
+        }
+
+        .title {
+            display: flex;
+            align-items: center; /* Aligns dot and text properly */
+            gap: 8px; /* Space between dot and text */
+        }
+
+        .bullet {
+            width: 14px;  /* Increase dot size */
+            height: 14px; /* Keep it a perfect circle */
+            border-radius: 50%; /* Makes it a perfect circle */
+            display: inline-block;
+            flex-shrink: 0; /* Prevents the dot from resizing */
+            margin-top: -16px; /* Fine-tunes vertical alignment */
+        }
+
+        .bullet.upcoming{
+            background-color: blueviolet;
+        }
+
+        .bullet.pending{
+            background-color: #ff4500;
+        }
+
+        .bullet.enrolled{
+            background-color: orange;
+        }
+
+        .bullet.completed{
+            background-color: green;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+            font-size: 1em;
+        }
+
+        th {
+            background: #f5f5f5;
+            font-weight: bold;
+        }
+
+        button {
+            width: 100%;
+            margin: 5px;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: medium;
+            border: none;
+            background-color: #BB0003;
+            text-align: center;
+            color: #FFF;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #D80004;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <!-- Right Section -->
+    <div class="navbar">
+        <!-- Left Section -->
+        <div class="nav-left">
+            <i class="fa-solid fa-user"></i>
+            <span class="hello-text">
+                <strong>Hello, {{ stu.stu_id }}</strong>
+                <span class="program-code">|    {{ stu.pgrm_code }}</span>
+            </span>
+        </div>
+    
+        <!-- Right Section -->
+        <div class="nav-right">
+            <div class="notification-bell {% if supposed_to_enrol %} has-notification {% endif %}" id="bell">
+                <button class="notification-icon" onclick="toggleDropdown()"><i class="fa-solid fa-bell"></i></button>
+                <span class="notification-dot"></span>
+            </div>                        
+        </div>
+    </div>
+
+    <div class="dropdown" id="notificationDropdown">
+        <div class="dropdown-header">
+            Notifications
+            <span class="read-all" onclick="markAllRead()"><i class="fa-regular fa-circle-check"></i></span>
+        </div>
+        <div class="dropdown-body">
+            {% if supposed_to_enrol %}
+                {% for subject in supposed_to_enrolFL %}
+                    <div class="notification-item">You did not pass <strong>{{ subject[0] }}</strong> previously. Please enroll to retake it before <strong>March 14, 2025</strong>. <br></div>
+                {% endfor %}
+                {% for subject in supposed_to_enrol %}
+                    <div class="notification-item">You haven't enrolled in <strong>{{ subject[0] }}</strong> yet. Make sure to sign up before <strong>March 14, 2025</strong>! <br></div>
+                {% endfor %}
+            {% else %}
+                You have no notifications.
+            {% endif %}
+        </div>
+        <div class="dropdown-footer">See all</div>
+    </div>
+    
+    <div class="toggle-btn" onclick="toggleSidebar()">
+        <i class="fa-solid fa-bars"></i>
+    </div>
+    <div class="sidebar" id="sidebar">
+        <br>
+        <br>
+        <a href="{{ url_for('reshufflePlan', stu_id = stu.stu_id)}}">View Updated Plan</a>
+        <a href="{{ url_for('studyPlan', stu_id = stu.stu_id)}}">View Original Plan</a>
+        <a href = '#' onclick = 'showConfirmation()'>Logout</a>
+    </div>
+
+    <!-- Overlay (Prevents clicking other buttons when sidebar is open) -->
+    <div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmationModal" class="modal">
+        <div class="modal-content">
+            <h4>Are you sure you want to logout?</h4>
+            <button onclick="confirmLogout()">Confirm</button>
+            <button onclick="cancelLogout()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Cards Section -->
+    <div class="cards-container">
+        <div class = 'pink-cards'>
+            <div class="card pink">
+                <h3>Current Semester</h3>
+                <p>Semester {% if stu.intake_sem == 'JAN' %} 1 
+                   {% elif stu.intake_sem == 'MAY' %} 2 
+                   {% elif stu.intake_sem == 'AUG' %} 3 
+                   {% endif %}</p>
+            </div>
+            <div class="card pink">
+                <h3>Current Year</h3> 
+                {% if stu.intake_year == 2025 %}
+                    <p>Year 1</p>
+                {% else %}
+                    <p>Year {{ 2024 - stu.intake_year }}</p>
+                {% endif %}
+            </div>
+            <div class="card pink">
+                <h3>Graduation Year</h3>
+                {% if grad_year %}
+                    <p>{{ grad_year }}</p>
+                {% else %}
+                    {% if stu.pgrm_code == 'HUBDA' %}
+                        <p>{{ stu.intake_sem }} {{ stu.intake_year + 2 }}</p>
+                    {% else %}
+                        <p>{{ stu.intake_sem }} {{ stu.intake_year + 1 }}</p>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        <div class = 'other-cards'>
+            <div class="card green">
+                <h3>Failed Subjects</h3>
+                <p>{{ sbj_failed | length if sbj_failed else 0 }}</p>
+            </div>
+            <div class="card purple">
+                <h3>Additional Assessment</h3>
+                <p>{{ add_assess | length if add_assess else 0 }}</p> 
+            </div>
+            <div class="card blue">
+                <h3>Additional Exam</h3>
+                <p>{{ add_exam | length if add_exam else 0 }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Credit Progress -->
+    <div class="credit-progress">
+        <div class="labels">
+            <span>Credit Hour Completed</span>
+            <span>Credit Hour Required</span>
+        </div>
+        <div class="credit-bar">
+            <div class="completed"></div>
+            <span>{{ ttl_hours[0] }} / {% if stu.pgrm_code == 'HUBDA' %}120{% else %}90{% endif %}</span>
+        </div>
+    </div>
+
+    <!-- Subjects -->
+    <div class="subject-container">
+        <!-- Pending Subjects -->
+        <div class="subject-box">
+            <div class="title">
+                <span class="bullet pending"></span>
+                <strong>Pending Subjects</strong>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Subject</th>
+                        <th>Semester</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if add_assess or add_exam or sbj_failed %}
+                        {% for subject in add_assess + add_exam + sbj_failed %}
+                        <tr>
+                            <td><strong>{{ subject[0] }}</strong></td>
+                            <td>{{ subject[1] }}</td>
+                            <td>{{ subject[2] if subject|length > 2 else 'N/A' }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr><td colspan="3">No pending subjects.</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    
+        <!-- Upcoming Subjects -->
+        <div class="subject-box">
+            <div class="title">
+                <span class="bullet upcoming"></span>
+                <strong>Upcoming Subjects</strong>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Subject</th>
+                        <th>Semester</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if upcoming_sbj %}
+                        {% for subject in upcoming_sbj %}
+                        <tr>
+                            <td><strong>{{ subject[0] }}</strong></td>
+                            <td>{{ subject[1] }}</td>
+                            <td>{{ subject[2] if subject|length > 2 else 'N/A' }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr><td colspan="3">No upcoming subjects.</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+        <div class = 'subject-box'>
+            <div class="title">
+                <span class="bullet enrolled"></span>
+                <strong>Enrolled Subjects</strong>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Subject</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if enrol_sbj %}
+                        {% for subject in enrol_sbj %}
+                        <tr>
+                            <td><strong>{{ subject[0] }}</strong></td>
+                            <td>{{ subject[1] }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr><td colspan="3">No enrolled subjects.</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+        <div class = 'subject-box'>
+            <div class="title">
+                <span class="bullet completed"></span>
+                <strong>Completed Subjects</strong>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Subject</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if completed_sbj %}
+                        {% for subject in completed_sbj %}
+                        <tr>
+                            <td><strong>{{ subject[0] }}</strong></td>
+                            <td>{{ subject[1] }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr><td colspan="3">No completed subjects.</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div> 
+
+    <script>
+        function toggleDropdown() {
+            var dropdown = document.getElementById("notificationDropdown");
+            dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+        }
+
+        function markAllRead() {
+            alert("All notifications marked as read");
+        }
+
+        document.addEventListener("click", function(event) {
+            var dropdown = document.getElementById("notificationDropdown");
+            var icon = document.querySelector(".notification-icon");
+            if (!icon.contains(event.target) && !dropdown.contains(event.target)) {
+                dropdown.style.display = "none";
+            }
+        });
+
+        function showConfirmation() {
+            // Show the confirmation modal
+            document.getElementById("confirmationModal").style.display = "block";
+        }
+    
+        function cancelLogout() {
+            // Hide the confirmation modal if the user cancels
+            document.getElementById("confirmationModal").style.display = "none";
+        }
+    
+        function confirmLogout() {
+            window.location.href = "{{ url_for('login_page') }}"; 
+        }
+
+        function toggleSidebar() {
+            let sidebar = document.getElementById("sidebar");
+            let overlay = document.getElementById("overlay");
+
+            sidebar.classList.toggle("active");
+
+            if (sidebar.classList.contains("active")) {
+                overlay.style.display = "block";
+            } else {
+                overlay.style.display = "none";
+            }
+        }
+
+    </script>
+
+</body>
+</html>

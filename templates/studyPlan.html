@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Study Plan</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #fff0f3;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .back-button {
+            cursor: pointer;
+            font-size: 20px;
+            position: absolute;
+            left: 50px;
+        }
+        .reshuffle-btn {
+            background-color: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: 0.3s ease;
+            position: absolute;
+            right: 50px;
+        }
+        .reshuffle-btn:hover {
+            background-color: #c82333;
+        }
+        .container {
+            max-width: 90%;
+            margin: auto;
+            padding: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #ffb3c1;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        .red-highlight {
+            background-color: #f1f1f1;
+            color: #bebebe;
+        }
+        .year-number {
+            font-size: 20px;  
+            text-align: center;
+        }
+        .download-btn {
+            color: white;
+            font-size: 24px;
+            position: absolute;
+            right: 70px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <i class="fas fa-arrow-left back-button" onclick="history.back()"></i>
+        <h1>Study Plan</h1>
+        <a href="{{ url_for('downloadStudyPlan', stu_id = stu_id)}}" class="download-btn">
+            <i class="fa-solid fa-download"></i>
+        </a>
+    </div>
+    <div class="container">   
+        <table>
+            <thead>
+                <tr>
+                    <th>Year</th>
+                    <th>Semester</th>
+                    <th>Subject Code</th>
+                    <th>Subject Name</th>
+                    <th>Subject Class</th>
+                    <th>Credit Hours</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set year_counts = {} %}
+                {% set semester_counts = {} %}
+                
+                {% for subject in study_plan %}
+                    {% set year = subject[0] | string + ' ' + subject[6][:4] | string %}
+                    {% set semester = subject[1] | string | trim %}
+                    
+                    {% if year in year_counts %}
+                        {% set _ = year_counts.update({year: year_counts[year] + 1}) %}
+                    {% else %}
+                        {% set _ = year_counts.update({year: 1}) %}
+                    {% endif %}
+
+                    {% if (year, semester) in semester_counts %}
+                        {% set _ = semester_counts.update({(year, semester): semester_counts[(year, semester)] + 1}) %}
+                    {% else %}
+                        {% set _ = semester_counts.update({(year, semester): 1}) %}
+                    {% endif %}
+                {% endfor %}
+
+                {% set year_tracker = {} %}
+                {% set semester_tracker = {} %}
+                
+                {% for subject in study_plan %}
+                    {% set year = subject[0] | string + ' ' + subject[6][:4] | string %}
+                    {% set semester = subject[1] | string | trim %}
+                    {% set year_display = year_tracker.get(year, 0) == 0 %}
+                    {% set semester_display = semester_tracker.get((year, semester), 0) == 0 %}
+                    
+                    <tr>
+                        {% if year_display %}
+                            <td rowspan="{{ year_counts[year] }}"><strong>{{ "Year " ~ subject[0] }} <br><br> <span class="year-number">{{ subject[6][:4] }}</span></strong></td>
+                            {% set _ = year_tracker.update({year: 1}) %}
+                        {% endif %}
+
+                        {% if semester_display %}
+                            <td rowspan="{{ semester_counts[(year, semester)] }}"><strong>{{ semester }}</strong></td>
+                            {% set _ = semester_tracker.update({(year, semester): 1}) %}
+                        {% endif %}
+
+                        <td>{{ subject[2] }}</td>
+                        <td>{{ subject[3] }}</td>
+                        <td>{{ subject[4] }}</td>
+                        <td>{{ subject[5] }}</td>
+                    </tr>
+                {% endfor %}     
+            </tbody>                
+        </table>             
+    </div>
+</body>
+</html>

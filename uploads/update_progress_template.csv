@@ -1,0 +1,2 @@
+﻿stu_id,intake_sem,intake_year,gender,nationality,curr_year,bm_result,pgrm_code,pgrm_name,pgrm_duration,pl_id,pl_name,sbj_code,sbj_cat,sbj_name,sbj_class,credit_hours,sbj_year,pre_req,sem_id,sem_name,sem_duration,stu_grade,sbj_status
+B000083,MAY,2023,M,MALAYSIAN,2,FAIL,HUBDA,BACHELOR OF INFORMATION TECHNOLOGY (HONOURS) DATA ANALYTICS,3,PL0001,KOON KIM PEH,BIT101,Coding and Development,Computer Architecture and Organisation,CORE COMPUTING,4,1,No pre-requisite,SEM0001,JAN,14,DI2  ,COMPLETE
