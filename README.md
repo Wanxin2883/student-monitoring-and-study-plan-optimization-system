@@ -39,9 +39,11 @@ Try out the platform and experience the features in action.
    ```bash
    git clone https://github.com/yourusername/student-monitoring-system.git
 2. **Install dependencies**:
+   ```bash
    pip install -r requirements.txt
-3. **Set up the PostgreSQL database**:
-4. **Run the application**:
+4. **Set up the PostgreSQL database**:
+5. **Run the application**:   
+   ```bash
    python app.py
 
 ---
