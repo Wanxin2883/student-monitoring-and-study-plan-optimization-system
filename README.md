@@ -2,10 +2,10 @@
 
 A web-based platform designed to assist students and program leaders in tracking academic performance, monitoring progress, and generating optimized study plans based on the latest academic results and pre-defined academic rules.
 
----
-## 🔗 Live Demo
+🔗 **Live Demo**  
 [Explore the Website](https://student-monitoring-and-study-plan.onrender.com)  
 Try out the platform and experience the features in action.
+
 ---
 
 ## 🚀 Features
